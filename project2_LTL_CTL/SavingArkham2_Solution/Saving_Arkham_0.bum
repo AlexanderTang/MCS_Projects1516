@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.machineFile org.eventb.core.configuration="org.eventb.core.fwd" version="5">
+<org.eventb.core.event name="'" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="INITIALISATION">
+<org.eventb.core.action name="'" org.eventb.core.assignment="game_over ≔ FALSE" org.eventb.core.label="INIT_game_not_over"/>
+<org.eventb.core.action name=")" org.eventb.core.assignment="open_gates ≔ ∅" org.eventb.core.label="INIT_no_open_gates"/>
+<org.eventb.core.action name="(" org.eventb.core.assignment="closed_gates ≔ ∅" org.eventb.core.label="INIT_no_closed_gates"/>
+</org.eventb.core.event>
+<org.eventb.core.event name="evt1" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="end_game">
+<org.eventb.core.guard name="'" org.eventb.core.label="game_not_over" org.eventb.core.predicate="game_over = FALSE"/>
+<org.eventb.core.action name="(" org.eventb.core.assignment="game_over ≔ TRUE" org.eventb.core.label="game_over"/>
+<org.eventb.core.guard name=")" org.eventb.core.label="end_game_condtion" org.eventb.core.predicate="card(open_gates) ≥ open_to_lose ∨ card(closed_gates) ≥ closed_to_win"/>
+</org.eventb.core.event>
+<org.eventb.core.event name="evt3" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="game_over">
+<org.eventb.core.guard name="'" org.eventb.core.label="game_over" org.eventb.core.predicate="game_over = TRUE"/>
+<org.eventb.core.action name="(" org.eventb.core.assignment="game_over ≔ TRUE" org.eventb.core.label="game_still_over"/>
+</org.eventb.core.event>
+<org.eventb.core.variable name="evt4" org.eventb.core.identifier="game_over"/>
+<org.eventb.core.event name="evt5" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="open_gate">
+<org.eventb.core.parameter name="'" org.eventb.core.identifier="building"/>
+<org.eventb.core.guard name="(" org.eventb.core.label="element_buildings" org.eventb.core.predicate="building ∈ buildings"/>
+<org.eventb.core.action name=")" org.eventb.core.assignment="open_gates ≔ {building} ∪ open_gates" org.eventb.core.label="gate_opened"/>
+<org.eventb.core.guard name="*" org.eventb.core.label="game_not_over" org.eventb.core.predicate="game_over = FALSE"/>
+<org.eventb.core.guard name="+" org.eventb.core.comment="// In the assignment it mentions 'a building where there is no gate'; a closed gate is still a gate. But we assume that it meant 'where there is no OPEN gate'. " org.eventb.core.label="gate_not_open" org.eventb.core.predicate="{building} ⊈ open_gates"/>
+<org.eventb.core.action name="," org.eventb.core.assignment="closed_gates ≔ closed_gates∖{building}" org.eventb.core.label="gate_not_closed"/>
+</org.eventb.core.event>
+<org.eventb.core.seesContext name="evt6" org.eventb.core.target="Arkham"/>
+<org.eventb.core.variable name="evt7" org.eventb.core.identifier="open_gates"/>
+<org.eventb.core.variable name="evt8" org.eventb.core.identifier="closed_gates"/>
+<org.eventb.core.invariant name="evt9" org.eventb.core.label="game_over_type" org.eventb.core.predicate="game_over ∈ BOOL"/>
+<org.eventb.core.invariant name="evt:" org.eventb.core.label="open_gates_type" org.eventb.core.predicate="open_gates ⊆ buildings"/>
+<org.eventb.core.invariant name="evt?" org.eventb.core.label="finite_gates" org.eventb.core.predicate="finite(open_gates)" org.eventb.core.theorem="true"/>
+<org.eventb.core.invariant name="evt;" org.eventb.core.label="closed_gates_type" org.eventb.core.predicate="closed_gates ⊆ buildings"/>
+<org.eventb.core.invariant name="evt@" org.eventb.core.label="finite_closed" org.eventb.core.predicate="finite(closed_gates)" org.eventb.core.theorem="true"/>
+<org.eventb.core.event name="evt&gt;" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="close_gate">
+<org.eventb.core.parameter name="(" org.eventb.core.identifier="building"/>
+<org.eventb.core.guard name=")" org.eventb.core.label="element_buildings" org.eventb.core.predicate="building ∈ buildings"/>
+<org.eventb.core.guard name="*" org.eventb.core.label="game_not_over" org.eventb.core.predicate="game_over = FALSE"/>
+<org.eventb.core.guard name="+" org.eventb.core.label="gate_open" org.eventb.core.predicate="{building} ⊆ open_gates"/>
+<org.eventb.core.action name="," org.eventb.core.assignment="closed_gates ≔ {building} ∪ closed_gates" org.eventb.core.label="gate_closed"/>
+<org.eventb.core.action name="-" org.eventb.core.assignment="open_gates ≔ open_gates∖{building}" org.eventb.core.label="gate_not_opened"/>
+</org.eventb.core.event>
+<org.eventb.core.invariant name="evtA" org.eventb.core.label="gate_not_open_and_closed" org.eventb.core.predicate="(open_gates ∩ closed_gates) = ∅"/>
+<org.eventb.core.seesContext name="evtB" org.eventb.core.target="GameStates"/>
+</org.eventb.core.machineFile>

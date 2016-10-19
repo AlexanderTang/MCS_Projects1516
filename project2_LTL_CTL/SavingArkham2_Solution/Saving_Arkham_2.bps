@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.psFile>
+<org.eventb.core.psStatus name="INITIALISATION/acted_linking/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="INITIALISATION/turn_end_linking/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="32" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="INITIALISATION/init_no_monster_locations/SIM" org.eventb.core.confidence="1000" org.eventb.core.poStamp="32" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="move/acted_linking/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="move/turn_end_linking/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="move/not_end_turn/GRD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="monsters_move/acted_linking/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="monsters_move/turn_end_linking/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="monsters_move/not_end_turn/GRD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="monsters_move/perform_move/SIM" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="add_monster/acted_linking/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="add_monster/turn_end_linking/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="add_monster/not_end_turn/GRD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="attack/monsters_present/WD" org.eventb.core.confidence="0" org.eventb.core.poStamp="37" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="attack/acted_linking/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="37" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="attack/turn_end_linking/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="37" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="attack/not_end_turn/GRD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="37" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="attack/not_acted/GRD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="37" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="attack/update_monsters/SIM" org.eventb.core.confidence="1000" org.eventb.core.poStamp="37" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="next_turn/acted_linking/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="next_turn/turn_end_linking/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="next_turn/end_turn/GRD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="lose_game/end_of_turn/GRD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="win_game/end_of_turn/GRD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="open_gate/acted_linking/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="open_gate/turn_end_linking/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="open_gate/not_acted/GRD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="open_gate/turn_not_ended/GRD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="close_gate/acted_linking/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="close_gate/turn_end_linking/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="close_gate/not_acted/GRD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="close_gate/not_end_turn/GRD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="35" org.eventb.core.psManual="false"/>
+</org.eventb.core.psFile>

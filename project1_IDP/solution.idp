@@ -1,0 +1,364 @@
+LTCvocabulary Arkham { 
+    type Time isa nat
+    Start : Time
+    partial Next(Time) : Time
+    
+    type number isa nat
+
+    type location
+    type district isa location
+    type building isa location
+
+    Move_To(Time, location)
+    Close_Gate(Time)
+    Attack(Time)
+
+    Location(Time) : location
+    I_Location : location
+
+    type monsternb = {0..3} isa nat
+    Monsters_In(Time, location) : monsternb
+    Exit_Gate(Time, building)
+
+    Clues(Time) : number
+
+    Open_Gate(Time, building)
+    C_Open_Gate(Time, building)
+    Closed_Gate(Time, building)
+
+    Has_Connection(location, location)
+
+    type state constructed from {player_turn, monster_turn, won, lost}
+    GameState(Time) : state
+    Closed_To_Win : number
+    Open_To_Lose : number
+
+    Connected(location, location)
+
+    CT_Win(Time)
+    CT_Lose(Time)
+    
+    Can_Move_To(Time,location)
+
+    Stuck(Time)
+    
+    Monster_Move(Time, location, district) : monsternb
+}
+
+
+theory T : Arkham {
+    // 2.1 THE TOWN
+
+    // Define symmetrical aspect of Has_Connection (use Connected for the remainder of the theory!)
+    !x,y : Connected(x,y) <=> Has_Connection(y,x) | Has_Connection(x,y).
+    // All buildings are connected to one district only
+    !x[building] : ?1y[district] : Connected(x,y).
+
+
+    // 2.2 GAME TURNS
+
+    // Alternating turns and end condition:
+    {
+        // Initially player turn
+        GameState(Start) = player_turn.
+        // Player turn next if it's currently monster turn and win/lose condition has not been reached
+        !t : GameState(Next(t)) = player_turn <- ~CT_Win(t) & ~CT_Lose(t) & GameState(t) = monster_turn.
+        // Monster turn next if it's currently player turn and win/lose condition has not been reached
+        !t : GameState(Next(t)) = monster_turn <- ~CT_Win(t) & ~CT_Lose(t) & GameState(t) = player_turn.
+        // Game state will be won if win condition has been reached this turn
+        !t : GameState(Next(t)) = won <- CT_Win(t).
+        // Next game state is won if the current game state is won
+        !t : GameState(Next(t)) = won <- GameState(t) = won.
+        // Game state will be lost if lose condition has been reached this turn
+        !t : GameState(Next(t)) = lost <- CT_Lose(t).
+        // Next game state is lost if the current game state is lost
+        !t : GameState(Next(t)) = lost <- GameState(t) = lost.
+    }
+
+    {
+        // Win condition triggered if the amount of closed gates next turn is greater or equal to the number needed
+        !t : CT_Win(t) <- #{b[building]: Closed_Gate(Next(t),b)} >= Closed_To_Win.
+        // Lose condition triggered if the amount of open gates next turn is greater or equal to the number needed or if the investigator cannot move anymore
+        !t : CT_Lose(t) <- #{b[building]: Open_Gate(Next(t),b)} >= Open_To_Lose | Stuck(t).
+        // The investigator becomes stuck if it's currently the monster's turn and there are no available move locations for the investigator next turn
+        !t : Stuck(t) <- GameState(t) = monster_turn & (~?l : Can_Move_To(Next(t),l)).
+        // The investigator can move to location l if and only if l is connected to the current location and if l has less than 3 monsters
+        !t : !l : Can_Move_To(t,l) <- Connected(Location(t),l) & Monsters_In(t,l) < 3.
+    }
+    
+
+    // 2.3 THE INVESTIGATOR
+
+    // Location
+    {
+        // Initial location
+        Location(Start) = I_Location.
+        // The investigator's next location will be l if Move_To(t,l) is true
+        !t,l : Location(Next(t)) = l <- Move_To(t,l).
+        // If it's currently not the player's turn, then stay at the current location
+        !t : Location(Next(t)) = Location(t) <- GameState(t) ~= player_turn.
+    }
+    // The investigator could move to location l if it's currently the player's turn and if it's possible to move to l
+    !t,l : Move_To(t,l) => GameState(t) = player_turn & Can_Move_To(t,l).
+    // If it's the player's turn then attack, close a gate or do nothing (cannot do do both)
+	!t[Time] : GameState(t) = player_turn => ~(Attack(t) & Close_Gate(t)).
+    // If it's not the player's turn then the investigator cannot attack or close a gate
+    !t[Time] : GameState(t) ~= player_turn => ~(Attack(t) | Close_Gate(t)).
+    // The investigator can only attack if the current location has at least one monster
+    !t[Time] : Attack(t) => Monsters_In(t, Location(t)) > 0.
+    // The investigator can only close a gate if there is an open gate at the current location
+    !t[Time] : Close_Gate(t) => Open_Gate(t, Location(t)).
+    
+    
+    // 2.4 MONSTERS
+    
+    // The amount of monsters in the current location will be 0 next turn if the investigator attacks
+    !t[Time] : Attack(t) => Monsters_In(Next(t), Location(t)) = 0.
+    // There are maximum 3 monsters in any district at any time.
+    !t[Time] : !l[district] : Monsters_In(t,l) =< 3.
+    
+    // Initially there are no monsters anywhere
+    !l[location] : Monsters_In(Start,l) = 0.
+    // Monsters spawning
+    {
+    	// Every monster turn, let a monster exit a building with an open gate
+    	!t[Time] : !b[building] : Exit_Gate(t,b) <- GameState(t) = monster_turn & Open_Gate(t,b).
+    }
+    // A monster will have spawned by next turn if one exits the gate this turn
+    !t[Time] : !b[building] : Exit_Gate(t,b) => Monsters_In(Next(t),b) = 1.
+    // During a monster turn, any buildings which don't have an open gate will not have any monsters.
+    !t[Time] : !b[building] : GameState(t) = monster_turn & ~Exit_Gate(t,b) => Monsters_In(Next(t),b) = 0.
+    
+    // Monster movement
+    // If it's currently not monster turn and the investigator does not attack, then the monsters in every location will remain the same next turn
+    !t[Time] : GameState(t) ~= monster_turn & ~Attack(t) & t<MAX[:Time] => !l[location] : Monsters_In(Next(t),l) = Monsters_In(t,l).
+    // If it's currently not monster turn and the investigator attacks, then the monsters in every location, except the location being attacked, will remain the same next turn
+    !t[Time] : GameState(t) ~= monster_turn & Attack(t) & t<MAX[:Time] => (!l[location] : l ~= Location(t) => Monsters_In(Next(t),l) = Monsters_In(t,l)).
+    // During monster turn, amount of monsters moving to connected districts equals monsters in current location
+    !t[Time] : !l[location] : GameState(t) = monster_turn => sum{d[district] n[monsternb]:n=Monster_Move(t,l,d) & Connected(l,d):n} = Monsters_In(t,l).
+    // During monster turn, amount of monsters in district next turn equals the sum of all monsters moving to this district (monsters in the district itself will be moving out, so don't need to be counted)
+    !t[Time] : !d[district] : GameState(t) = monster_turn => Monsters_In(Next(t),d) = sum{l[location] n[monsternb]:n=Monster_Move(t,l,d) & Connected(l,d):n}.
+    
+    
+    // THE FOLLOWING TWO CONSTRAINTS ARE NOT REQUIRED FOR THE GAME TO WORK, BUT REDUCE THE AMOUNT OF MODELS FOUND (since Monster_Move serves no purpose outside connected locations-districts and monster turns, it would take random values without these constraints)
+    
+    // When it's not the monsters turn, there won't be any monsters moving to any districts
+    !t[Time] : GameState(t) ~= monster_turn => !l[location] : !d[district] : Monster_Move(t,l,d) = 0.
+    // If the location and district are not connected, then at all points in time, the amount of monsters moving from location to district equals to 0
+    !l[location] : !d[district] : ~Connected(l,d) => !t[Time] : Monster_Move(t,l,d) = 0.
+    
+   
+    // 2.5 GATES
+    
+    // Open gates
+    // No gates are open initially
+    !b : ~Open_Gate(Start,b).
+    {
+        // If gate gets opened, it will be open next turn
+        !t : !b : Open_Gate(Next(t),b) <- C_Open_Gate(t, b).
+        // If the gate is open and doesn't get closed, it will stay open next turn
+        !t : !b : Open_Gate(Next(t),b) <- Open_Gate(t,b) & ~Close_Gate(t).
+    }
+    
+    // Close gates
+    // No gates are closed initially
+    !b : ~Closed_Gate(Start,b).
+    {
+        // The gate becomes closed next turn if the investigator closes the gate
+        !t : Closed_Gate(Next(t), Location(t)) <- Close_Gate(t).
+        // The gate stays closed next turn if the gate is already closed and is not being reopened
+        !t : !b : Closed_Gate(Next(t), b) <- Closed_Gate(t, b) & ~C_Open_Gate(t,b).
+    }
+    
+    // The investigator can only close a gate if he has at least two clues (the condition that there needs to be an open gate has been handled in 2.3)
+    !t : Close_Gate(t) => Clues(t) >= 2.
+    
+    
+    // 2.6 CLUES
+    
+    // Initially the investigator has no clues
+    Clues(Start) = 0.
+    // The amount of clues stays the same if the investigator neither attacks nor closes a gate
+    !t : ~Attack(t) & ~Close_Gate(t) & t<MAX[:Time] => Clues(Next(t)) = Clues(t).
+    // If the player attacks, then the amount of kills will be added to the current amount of clues for the next turn
+    !t : Attack(t) => Clues(Next(t)) = Clues(t) + Monsters_In(t, Location(t)).
+    // When a gate is closed, two clues are deducted
+    !t : Close_Gate(t) => Clues(Next(t)) = Clues(t) - 2.
+    // If the number of clues is higher than 10, then next turn it will be set to 10;
+    // No danger of using temporary extra to close gate since investigator can't attack and close gate at the same time;
+    // The number will be updated in time as it takes two turn switches to become player's turn again
+    // i.e. the player has 9 clues and attacks 2 monsters; the following turn will be a monster turn and the clues will be set to 11; on the next turn, the clues will be set to 10 (during players turn or if the game is lost due to the player being stuck)
+    !t[Time] : Clues(t) > 10 => Clues(Next(t)) = 10.
+}
+
+theory TimeTheo : Arkham{
+    { 
+        Start = MIN[:Time].
+        !t : Next(t) = t + 1 <- Time(t+1).
+    }
+}
+
+procedure main() {
+    //show(Harder)
+    //check()
+    allVerifications()
+}
+
+procedure show(struc) {
+    idpd3.init_idpd3();
+    stdoptions.nbmodels = 1
+	TH = clone(struc);
+    setvocabulary(TH, Arkham);
+    S = calculatedefinitions(merge(TimeTheo, T), TH)
+
+    local model = modelexpand(T, S)[1];
+    setvocabulary(model, V_out);
+    local vis = merge(model, struc);
+    local visModel = modelexpand(T_out, vis)[1];
+	print(visModel)
+    idpd3.visualise(visModel);
+}
+
+
+/******************
+ *  Verifications *
+ ******************/
+
+LTCvocabulary v1 {
+    extern vocabulary Arkham
+	Reachable(location, location)
+}
+
+theory verification1: v1{
+    {
+    	// If a is connected to b, then b is reachable from a
+		!a,b : Reachable(a,b) <- Connected(a,b).
+        // If b is reachable from a and c is reachable from b, then c is reachable from a
+        !a,c : Reachable(a,c) <- ?b : Reachable(a,b) & Reachable(b,c).
+    }
+    // All locations are reachable
+    !a,b : a~=b => Reachable(a,b).
+}
+
+// first one returns true (on easy) which is correct
+// second one returns false (on unplayable) which is correct since there are two separate infrastructures
+procedure verification1proc(struc){
+    T1 = merge(T, verification1)
+    print(">>Verification 1 is ")
+    print(sat(T1,struc))
+}
+
+theory verification2: Arkham{
+    // There exists a point in time where the game state is won
+	?t[Time] : GameState(t) = won.
+}
+
+// returns false (on impossible) which is correct; that means it could not find any models which has a won game state
+procedure verification2proc(struc){
+	T2 = merge(T, verification2)
+    S = calculatedefinitions(merge(TimeTheo, T2), struc)
+    print(">>Verification 2 is ")
+    print(sat(T2,S))
+}
+
+theory verification3: Arkham{
+    // There exists a point in time where the game state is lost
+	?t[Time] : GameState(t) = lost.
+}
+
+// returns true (on unlosable) while the assignment assumed it is supposed to be false; in other words, the game found a state in which the game is lost, whereas it was expected that the game could not be lost.  The verification gave the correct result: there are two open gates early on and there are 20 turns.  It's not very hard to let the monsters grow in numbers while the investigator walks around doing nothing until he unwittingly moves into a building and the monsters stack up on the nearby district on the following turn.  The investigator becomes stuck and the game is lost.
+procedure verification3proc(struc){
+	T3 = merge(T, verification3)
+    S = calculatedefinitions(merge(TimeTheo, T3), struc)
+    print(">>Verification 3 is ")
+    print(sat(T3,S))
+}
+
+term Duration:Arkham{
+    // Returns the number of lost turns in the game (this basically equals MAX[:Time] - the turn before the game state became lost). Minimizing this count is the equivalent of prolonging the game as long as possible.
+    #{t[Time] : GameState(t) = lost}
+}
+
+// prints the model with the solution (the manual speaks of being able to return the optimal value of the term, but I did not figure out how to do this).  The game is lost from turn 8 onwards. Counting turn 0, the investigator survived for 8 turns (or 4 player turns).
+procedure verification4proc(struc){
+    S = calculatedefinitions(merge(TimeTheo, T), struc)
+    result = minimize(T,S,Duration)
+    print(">>Verification 4 will survive up till turn ")
+    printmodels(result)
+}
+
+theory verification5Win: Arkham{
+    // There exists a point in time where the game state is won
+	?t[Time] : GameState(t) = won.
+}
+
+theory verification5Lose: Arkham{
+    // There exists a point in time where the game state is lost
+	?t[Time] : GameState(t) = lost.
+}
+
+// first one returns true (on easy) for both win and lose
+// second one returns true (on harder) for both win and lose
+// these results are all correct since it is indeed possible to either win or lose in both these structures
+procedure verification5proc(struc){
+	T5Win = merge(T, verification5Win)
+    SW = calculatedefinitions(merge(TimeTheo, T5Win), struc)
+    print(">>Verification 5 (win possible) is ")
+    print(sat(T5Win,SW))
+    
+    T5Lose = merge(T, verification5Lose)
+    SL = calculatedefinitions(merge(TimeTheo, T5Lose), struc)
+    print(">>Verification 5 (lose possible) is ")
+    print(sat(T5Lose,SL))
+}
+
+theory verification6: Arkham{
+	// At any point in time, if the game state becomes won, then there exists no later point in time where the game state is no longer won.
+	!t[Time] : GameState(t) = won => ~?x[Time] : x > t & GameState(x) ~= won.
+}
+
+// returns true (on easy) which is correct; a won game must stay won
+procedure verification6proc(struc){
+	T6 = merge(T, verification6)
+    S = calculatedefinitions(merge(TimeTheo, T6), struc)
+    print(">>Verification 6 is ")
+    print(sat(T6,struc))
+}
+
+theory verification7: Arkham{
+    // Attack is false for all points in time
+    !t[Time] : ~Attack(t).
+    // There exists a point in time where the game state becomes won
+    ?t[Time] : GameState(t) = won.
+}
+
+// returns false (on easy) which is expected as the investigator does not gain any clues without attacking,
+// so he cannot close any gates, so the game cannot become won
+procedure verification7proc(struc){
+	T7 = merge(T, verification7)
+    S = calculatedefinitions(merge(TimeTheo, T7), struc)
+    print(">>Verification 7 is ")
+    print(sat(T7,S))
+}
+
+procedure allVerifications(){
+    verification1proc(reduceVoc(Easy))
+    verification1proc(reduceVoc(Unplayable))
+    verification2proc(reduceVoc(Impossible))
+    verification3proc(reduceVoc(Unlosable))
+    verification4proc(reduceVoc(BoxedIn))
+    verification5proc(reduceVoc(Easy))
+    verification5proc(reduceVoc(Harder))
+    verification6proc(reduceVoc(Easy))
+    verification7proc(reduceVoc(Easy))
+}
+
+// Use this to map the vocabulary of the structures back to the Arkham vocabulary.
+procedure reduceVoc(struc) {
+    S = clone(struc)
+    setvocabulary(S, Arkham)
+    return S
+}
+
+include "TestInstances.idp"
+include "Structures.idp"

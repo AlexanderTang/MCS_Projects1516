@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.contextFile org.eventb.core.configuration="org.eventb.core.fwd" version="3">
+<org.eventb.core.carrierSet name="'" org.eventb.core.identifier="phases"/>
+<org.eventb.core.constant name="(" org.eventb.core.identifier="act"/>
+<org.eventb.core.constant name=")" org.eventb.core.identifier="monster_add"/>
+<org.eventb.core.constant name="*" org.eventb.core.identifier="movement"/>
+<org.eventb.core.constant name="+" org.eventb.core.identifier="end_turn"/>
+<org.eventb.core.axiom name="," org.eventb.core.label="phases_partition" org.eventb.core.predicate="partition(phases, {act}, {monster_add}, {movement}, {end_turn})"/>
+</org.eventb.core.contextFile>

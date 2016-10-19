@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="12">
+<org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.poStamp="12">
+<org.eventb.core.poIdentifier name="phases" org.eventb.core.type="ℙ(phases)"/>
+<org.eventb.core.poIdentifier name="act" org.eventb.core.type="phases"/>
+<org.eventb.core.poIdentifier name="end_turn" org.eventb.core.type="phases"/>
+<org.eventb.core.poIdentifier name="monster_add" org.eventb.core.type="phases"/>
+<org.eventb.core.poIdentifier name="movement" org.eventb.core.type="phases"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/SavingArkham/Phases.bpo|org.eventb.core.poFile#Phases|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="12">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="partition(phases,{act},{monster_add},{movement},{end_turn})" org.eventb.core.source="/SavingArkham/Phases.buc|org.eventb.core.contextFile#Phases|org.eventb.core.axiom#,"/>
+</org.eventb.core.poPredicateSet>
+</org.eventb.core.poFile>
